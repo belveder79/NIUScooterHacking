@@ -54,7 +54,7 @@ Finally, you need to put the [autoexec.be](https://github.com/belveder79/NIUScoo
 
 ### Berry Script
 
-Just a quick wrap-up of the [autoexec.be](https://github.com/belveder79/NIUScooterHacking/blob/main/v1/autoexec.be) script. It searches for a couple of header bytes and assembles a checksum-validated packet including the SOC value for each query package
+Just a quick wrap-up of the [autoexec.be](https://github.com/belveder79/NIUScooterHacking/blob/main/v1/autoexec.be) script. It searches for a couple of header bytes and assembles a checksum-validated packet including the SOC value for each query package from the controller. This packet includes faked cell-package values. Some packages from the controller query a time, which has to be replied in order for the controller to believe data is legit.
 
 ### Demo
 
