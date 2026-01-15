@@ -35,24 +35,34 @@ The controller has a set of interfaces with some special JST 2.54mm connectors, 
 
 <img width="327" height="244" alt="image" src="https://github.com/user-attachments/assets/3aae4a04-d269-457b-9479-f9366ee88c62" />
 
-I took the fixed battery with the replacement BMS, and created an ESP32-based workaround for the missing serial interface on the BMS. It's a workaround, but it *pretends* to be a battery while not being linked to it at all except for measuring the battery voltage to assess SOC status. Here's the final wiring diagram for an ESP32 S3 Super-Mini board.
+I took the fixed battery with the replacement BMS, and created an ESP32-based workaround for the missing serial interface on the BMS. It's a workaround, but it *pretends* to be a battery while not being linked to it at all except for measuring the battery voltage to assess SOC status. Here's the final wiring schematic for an ESP32 S3 Super-Mini board. You can take any ESP32 board you want, but it has to be ESP32 for [Berry](https://tasmota.github.io/docs/Berry/) support.
 
-<img width="388" height="325" alt="image" src="https://github.com/user-attachments/assets/dcf83b34-0aa2-4328-be24-f3c0dbadd284" />
+<img width="380" height="317" alt="image" src="https://github.com/user-attachments/assets/d8b42f96-4df3-49fb-9ae4-2de533881a51" />
 
-Just to explain it briefly, the connector to the controller is linked to two GPIOs 4 and 5 as RX/TX. The voltage divider brings the 39.0V-54.6V range down to some 2-3 volts, which can be read by the ESP32 on analog input GPIO 12.
+Just to explain it briefly, the connector to the controller is linked to two GPIOs 4 and 5 as RX/TX. The (very simple) voltage divider brings the 39.0V-54.6V range from the battery down to some 2-3 volts, which can be read by the ESP32 on analog input GPIO 12. The capacitor is used for smoothing and can be omitted if not available. In order to get the battery voltage, you can use a Y-cable. **TAKE CARE TO NOT FRY THE BOARD OR YOURSELF.**
 
 ### Tasmota Setup
-The ESP32 is flashed with [Tasmota](https://github.com/arendst/Tasmota). and GPIO12 is set to an *Analog Range* input. 
+The ESP32 is flashed with [Tasmota](https://github.com/arendst/Tasmota). Get information how to do that from there.
 
+<img width="313" height="476" alt="image" src="https://github.com/user-attachments/assets/af7de730-1023-46e2-b804-aa17a28108e2" />
+
+GPIO12 is set to an *Analog Range* input. On the *Console* you need to map the parameters for the input to a plausible SOC value. I have not really calibrated it yet, but these values seem to work to scale the SOC to give something between 0 and 100%
 ```
 AdcParam1 12,2900,3700,0,100
 ```
+Finally, you need to put the [Berry](https://github.com/belveder79/NIUScooterHacking/blob/main/v1/autoexec.be) script into the file system and restart. Done!
+
+[![Watch the demo](https://github.com/belveder79/NIUScooterHacking/blob/main/imgs/v1.png)](https://www.youtube.com/shorts/S-Y000_oJnw)
 
 ### Known issues
 
 - The ESP32 needs some external power supply, which is not shown. For now it is provided by USB, but I will find a solution to power the ESP32.
 - The voltage divider is working, but pretty inaccurate I feel. Will look for a separate version.
 - Tasmota does not run stand-alone without WIFI. There is a long story around that. In V2, there will be a solution to this as well.
+
+## Battery Emulator (v2)
+
+This is current (Jan 15, 2026) work in progress and is suposed to be written in the coming weeks.
 
 ## Disclaimer
 
