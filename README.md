@@ -16,8 +16,9 @@ Particularely the first one is a big pain. Luckily I did not have a broken batte
 - There are no replacement batteries for an acceptable price, if available at all
 - You cannot replace the battery with any other 48V battery, as the NIU battery BMS communicates over serial to the controller (and the dashboard ultimately).
 
-In practice, this means: if the battery is broken, you have to dump the entire scooter. I'm not going to accept this, so I started investigating a broken [KQI3 Sport](https://shopeu.niu.com/en-at/products/eu-niu-kqi3-sport-electric-kick-scooter-for-adults) scooter I bought cheaply and found that the battery cells were good, but the BMS was broken. You guess it: you can't get a replacement BMS. 
+In practice, this means: if the battery is broken, you have to dump the entire scooter. I'm not going to accept this, so I started investigating a broken [KQI3 Sport](https://shopeu.niu.com/en-at/products/eu-niu-kqi3-sport-electric-kick-scooter-for-adults) scooter I bought cheaply and found that the battery cells were good, but the BMS was broken. You guess it: you can't get a replacement BMS. So I removed the broken BMS and added a replacement one from Aliexpress, but I ran into a new problem: this BMS does not communicate. As a result, the controller goes into Error 42 mode and that's it. And that was the final point where I finally caught fire. 
 
+## Battery Emulator
 
 ## Disclaimer
 
