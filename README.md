@@ -50,19 +50,28 @@ GPIO12 is set to an *Analog Range* input. On the *Console* you need to map the p
 ```
 AdcParam1 12,2900,3700,0,100
 ```
-Finally, you need to put the [Berry](https://github.com/belveder79/NIUScooterHacking/blob/main/v1/autoexec.be) script into the file system and restart. Done!
+Finally, you need to put the [autoexec.be](https://github.com/belveder79/NIUScooterHacking/blob/main/v1/autoexec.be) Berry script into the file system of the ESP32 and restart. Done!
+
+### Berry Script
+
+Just a quick wrap-up of the [autoexec.be](https://github.com/belveder79/NIUScooterHacking/blob/main/v1/autoexec.be) script. It searches for a couple of header bytes and assembles a checksum-validated packet including the SOC value for each query package
+
+### Demo
+
+You can watch a Youtube short here:
 
 [![Watch the demo](https://github.com/belveder79/NIUScooterHacking/blob/main/imgs/v1.png)](https://www.youtube.com/shorts/S-Y000_oJnw)
 
-### Known issues
+### Known issues (v1)
 
 - The ESP32 needs some external power supply, which is not shown. For now it is provided by USB, but I will find a solution to power the ESP32.
 - The voltage divider is working, but pretty inaccurate I feel. Will look for a separate version.
 - Tasmota does not run stand-alone without WIFI. There is a long story around that. In V2, there will be a solution to this as well.
+- I don't know what happens if you try to update the firmware. Better don't do it.
 
-## Battery Emulator (v2)
+## Improved Battery Emulator (v2)
 
-This is current (Jan 15, 2026) work in progress and is suposed to be written in the coming weeks.
+The biggest issue is the supply voltage to the ESP and the fact that it will be "on" all the time. This will be part of the next iteration of work, and is current (Jan 15, 2026) work in progress, planned to be finished and documented in the coming weeks.
 
 ## Disclaimer
 
