@@ -23,7 +23,7 @@ In practice, this means: if the battery is broken, you have to dump the entire s
 
 You guess it: you can't get an original replacement BMS. So I removed the broken BMS and added a replacement one from Aliexpress, but I ran into a new problem: this BMS does not communicate. As a result, the controller goes into Error 42 mode and that's it. And that was the final point where I finally caught fire. 
 
-## Battery Emulator
+## Battery Emulator (v1)
 
 So here's the thing. I don't know any scooter that has a *smart* battery, only the NIUs have it. You just can't exchange it with some alternative one like e.g. [this](https://de.aliexpress.com/item/1005008628933535.html) one, as there is no communication and the resulting Error 42. So I got another KQI3 Sport scooter with a working battery and disassembled it completely. The Sport/Pro/Max versions of the KQI3 have 13S3, 13S4 and 13S5 layouts by the way, giving 7.8Ah, 10.4Ah and 13.0Ah capacity respectively. 
 
@@ -35,11 +35,24 @@ The controller has a set of interfaces with some special JST 2.54mm connectors, 
 
 <img width="327" height="244" alt="image" src="https://github.com/user-attachments/assets/3aae4a04-d269-457b-9479-f9366ee88c62" />
 
-Anyway, I took the fixed battery with the replacement BMS, and created an ESP32-based workaround for the missing serial interface on the BMS. It's a workaround, but it *pretends* to be a battery while not being linked to it at all except for measuring the battery voltage to assess SOC status.
+I took the fixed battery with the replacement BMS, and created an ESP32-based workaround for the missing serial interface on the BMS. It's a workaround, but it *pretends* to be a battery while not being linked to it at all except for measuring the battery voltage to assess SOC status. Here's the final wiring diagram for an ESP32 S3 Super-Mini board.
 
+<img width="388" height="325" alt="image" src="https://github.com/user-attachments/assets/dcf83b34-0aa2-4328-be24-f3c0dbadd284" />
 
+Just to explain it briefly, the connector to the controller is linked to two GPIOs 4 and 5 as RX/TX. The voltage divider brings the 39.0V-54.6V range down to some 2-3 volts, which can be read by the ESP32 on analog input GPIO 12.
 
+### Tasmota Setup
+The ESP32 is flashed with [Tasmota](https://github.com/arendst/Tasmota). and GPIO12 is set to an *Analog Range* input. 
 
+```
+AdcParam1 12,2900,3700,0,100
+```
+
+### Known issues
+
+- The ESP32 needs some external power supply, which is not shown. For now it is provided by USB, but I will find a solution to power the ESP32.
+- The voltage divider is working, but pretty inaccurate I feel. Will look for a separate version.
+- Tasmota does not run stand-alone without WIFI. There is a long story around that. In V2, there will be a solution to this as well.
 
 ## Disclaimer
 
