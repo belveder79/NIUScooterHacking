@@ -27,9 +27,22 @@ GPIOXX is set to an *Analog Range* input. On the *Console* you need to map the p
 ```
 AdcParam1 12,2900,3700,0,100
 ```
+### Berry Scripts
+
 Finally, you need to put the [autoexec.be](https://github.com/belveder79/NIUScooterHacking/blob/main/v2/autoexec.be) and the [runulp.be](https://github.com/belveder79/NIUScooterHacking/blob/main/v2/runulp.be) Berry scripts into the file system of the ESP32 and restart. Done!
 
-The biggest issue previously was to get the supply voltage to the ESP. The Relay board solves that elegantly now. And here's the catch: we can use the ULP mode listening on the TX line of the ESP32 to power it up and down once the scooter is powered on/off.
+The biggest issue previously was to get the supply voltage to the ESP. The Relay board solves that elegantly now. And here's the catch: 
+
+***We can use the ULP mode listening on the TX line of the ESP32 to power it up and down once the scooter is powered on/off***. 
+
+In the script, there's a timer which checks of there has been any communication with the controller. If there is none, the ESP32 goes into ultra deep sleep mode. The ULP module listens on GPIO 14 and if there is a slope detected, turns on automatically.
+
+## More links to modify the NIU scooters
+
+Here are a few links for modifying the NIU scooters:
+
+- [NIU Firmwares](https://github.com/scooterhacking/niu_scooters)
+- Explainer video on [Youtube](https://www.youtube.com/watch?v=alblypvLAAQ)
 
 ## Disclaimer
 
