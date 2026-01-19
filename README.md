@@ -37,6 +37,12 @@ The biggest issue previously was to get the supply voltage to the ESP. The Relay
 
 In the script, there's a timer which checks of there has been any communication with the controller. If there is none, the ESP32 goes into ultra deep sleep mode. The ULP module listens on GPIO 14 and if there is a slope detected, turns on automatically.
 
+### Parts list
+
+- XT60 Y-cable [Amazon](https://www.amazon.de/VUNIVERSUM-Goldstecker-Adapterkabel-Mr-Stecker-Modellbau%C2%AE/dp/B078NZ7VQQ)
+- ESP32 Relay board [Amazon](https://www.amazon.de/dp/B0CYSMFB49)
+- JST connectors + cables
+
 ## More links to modify the NIU scooters
 
 Here are a few links for modifying the NIU scooters:
