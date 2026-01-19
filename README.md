@@ -1,6 +1,6 @@
-# Hacking NIU Electric Scooters (KQI series)
+# Hacking NIU Electric Scooters (KQI series) - ESP32-driven BMS emulator
 
-This repository is supposed to serve as a summary of findings when trying to customize the experience of NIU scooters for me in a private manner. I hope it is useful for others. 
+This repository is supposed to serve as a summary of findings when trying to customize the experience of NIU scooters for me in a private manner. I created an ESP32-driven workaround for broken batteries. I hope it is useful for others. 
 
 ## Background Story
 
@@ -12,7 +12,24 @@ Read more about v1 [here](./v1.md).
 
 ## Improved Battery Emulator (v2)
 
-The biggest issue is the supply voltage to the ESP and the fact that it will be "on" all the time. This will be part of the next iteration of work, and is current (Jan 15, 2026) work in progress, planned to be finished and documented in the coming weeks.
+Like in v1, I created an ESP32-based workaround for the missing serial interface on the BMS. It's a workaround, and it *pretends* to be a battery while not being linked to it at all except for measuring the battery voltage to assess SOC status. I chose an ESP32 Relay board, because it allows for connecting up to 60V power supply with an integrated power circuit to bring this down to 5V the ESP32 needs. Again, it also has [Berry](https://tasmota.github.io/docs/Berry/) support.
+
+![IMG_0795](https://github.com/user-attachments/assets/ea49b247-e395-4155-8b57-aa7ddc050935)
+
+In this case the connector to the controller is linked to two GPIOs 14 and 13 as RX/TX. The (very simple) voltage divider brings the 39.0V-54.6V range from the battery down to some 2-3 volts, which can be read by the ESP32 on analog input GPIO XX. The capacitor is used for smoothing and can be omitted if not available. Now, in order to get the battery voltage, you can use a Y-cable. **TAKE CARE TO NOT FRY THE BOARD OR YOURSELF.**
+
+### Tasmota Setup
+The ESP32 is flashed with [Tasmota](https://github.com/arendst/Tasmota). Get information how to do that from there. One important part here is that we include ULP support.
+
+
+
+GPIOXX is set to an *Analog Range* input. On the *Console* you need to map the parameters for the input to a plausible SOC value. I have not really calibrated it yet, but these values seem to work to scale the SOC to give something between 0 and 100%
+```
+AdcParam1 12,2900,3700,0,100
+```
+Finally, you need to put the [autoexec.be](https://github.com/belveder79/NIUScooterHacking/blob/main/v2/autoexec.be) and the [runulp.be](https://github.com/belveder79/NIUScooterHacking/blob/main/v2/runulp.be) Berry scripts into the file system of the ESP32 and restart. Done!
+
+The biggest issue previously was to get the supply voltage to the ESP. The Relay board solves that elegantly now. And here's the catch: we can use the ULP mode listening on the TX line of the ESP32 to power it up and down once the scooter is powered on/off.
 
 ## Disclaimer
 
