@@ -25,49 +25,7 @@ You guess it: you can't get an original replacement BMS. So I removed the broken
 
 ## Battery Emulator (v1)
 
-So here's the thing. I don't know any scooter that has a *smart* battery, only the NIUs have it. You just can't exchange it with some alternative one like e.g. [this](https://de.aliexpress.com/item/1005008628933535.html) one, as there is no communication and the resulting Error 42. So I got another KQI3 Sport scooter with a working battery and disassembled it completely. The Sport/Pro/Max versions of the KQI3 have 13S3, 13S4 and 13S5 layouts by the way, giving 7.8Ah, 10.4Ah and 13.0Ah capacity respectively. 
-
-**NOTE: If you buy a battery pack somewhere, check the rated capacity and think what it means and if the seller makes a reasonable claim! Given that single cells (and cell blocks) have a maximum capacity of some 2.600mAh to 4.000mAh, you can do the math yourself by adding it up in terms of the serial layout. 13S4 means 4 batteries in parallel and 13 blocks of those, gives 10.4Ah for (4x) 2.600mAh cells and (13x) 4.2V gives 54.6V, which is a 48V battery on full charge.**
-
-So starting with a working setup, I sniffed the communication between the controller and a working battery. With some heavy use of Google Gemini, I analysed the protocol. What I found is that the battery communicates a lot of information about SOC and the individual cell package voltages. The controller queries the battery, gets the information, and does not do anything with this information except for the SOC. Also, you can't really do anything about that information controlling the battery either, because whether the battery pack is balanced or not is the responsibility of the BMS. 
-
-The controller has a set of interfaces with some special JST 2.54mm connectors, which are hard to get overall. Anyway, the serial interface is on the far left of the picture and only 3 wires are connected: GND, RX and TX.
-
-<img width="327" height="244" alt="image" src="https://github.com/user-attachments/assets/3aae4a04-d269-457b-9479-f9366ee88c62" />
-
-I took the fixed battery with the replacement BMS, and created an ESP32-based workaround for the missing serial interface on the BMS. It's a workaround, but it *pretends* to be a battery while not being linked to it at all except for measuring the battery voltage to assess SOC status. Here's the final wiring schematic for an ESP32 S3 Super-Mini board. You can take any ESP32 board you want, but it has to be ESP32 for [Berry](https://tasmota.github.io/docs/Berry/) support.
-
-<img width="380" height="317" alt="image" src="https://github.com/user-attachments/assets/d8b42f96-4df3-49fb-9ae4-2de533881a51" />
-
-Just to explain it briefly, the connector to the controller is linked to two GPIOs 4 and 5 as RX/TX. The (very simple) voltage divider brings the 39.0V-54.6V range from the battery down to some 2-3 volts, which can be read by the ESP32 on analog input GPIO 12. The capacitor is used for smoothing and can be omitted if not available. In order to get the battery voltage, you can use a Y-cable. **TAKE CARE TO NOT FRY THE BOARD OR YOURSELF.**
-
-### Tasmota Setup
-The ESP32 is flashed with [Tasmota](https://github.com/arendst/Tasmota). Get information how to do that from there.
-
-<img width="313" height="476" alt="image" src="https://github.com/user-attachments/assets/af7de730-1023-46e2-b804-aa17a28108e2" />
-
-GPIO12 is set to an *Analog Range* input. On the *Console* you need to map the parameters for the input to a plausible SOC value. I have not really calibrated it yet, but these values seem to work to scale the SOC to give something between 0 and 100%
-```
-AdcParam1 12,2900,3700,0,100
-```
-Finally, you need to put the [autoexec.be](https://github.com/belveder79/NIUScooterHacking/blob/main/v1/autoexec.be) Berry script into the file system of the ESP32 and restart. Done!
-
-### Berry Script
-
-Just a quick wrap-up of the [autoexec.be](https://github.com/belveder79/NIUScooterHacking/blob/main/v1/autoexec.be) script. It searches for a couple of header bytes and assembles a checksum-validated packet including the SOC value for each query package from the controller. This packet includes faked cell-package values. Some packages from the controller query a time, which has to be replied in order for the controller to believe data is legit.
-
-### Demo
-
-You can watch a Youtube short here:
-
-[![Watch the demo](https://github.com/belveder79/NIUScooterHacking/blob/main/imgs/v1.png)](https://www.youtube.com/shorts/S-Y000_oJnw)
-
-### Known issues (v1)
-
-- The ESP32 needs some external power supply, which is not shown. For now it is provided by USB, but I will find a solution to power the ESP32.
-- The voltage divider is working, but pretty inaccurate I feel. Will look for a separate version.
-- Tasmota does not run stand-alone without WIFI. There is a long story around that. In V2, there will be a solution to this as well.
-- I don't know what happens if you try to update the firmware. Better don't do it.
+Read more about v1 [here](./v1.md).
 
 ## Improved Battery Emulator (v2)
 
