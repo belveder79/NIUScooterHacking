@@ -1,0 +1,69 @@
+diff --git a/tasmota/my_user_config.h b/tasmota/my_user_config.h
+index 16f5f7b26..1254c4fbf 100644
+--- a/tasmota/my_user_config.h
++++ b/tasmota/my_user_config.h
+@@ -86,13 +86,13 @@
+ #ifndef WIFI_AP_PASSPHRASE
+ #define WIFI_AP_PASSPHRASE     ""                // AccessPoint passphrase. For WPA2 min 8 char, for open use "" (max 63 char).
+ #endif
+-#define WIFI_CONFIG_TOOL       WIFI_RETRY        // [WifiConfig] Default tool if Wi-Fi fails to connect (default option: 4 - WIFI_RETRY)
++#define WIFI_CONFIG_TOOL       WIFI_MANAGER      // [WifiConfig] Default tool if Wi-Fi fails to connect (default option: 4 - WIFI_RETRY)
+                                                  // (WIFI_RESTART, WIFI_MANAGER, WIFI_RETRY, WIFI_WAIT, WIFI_SERIAL, WIFI_MANAGER_RESET_ONLY)
+                                                  // The configuration can be changed after first setup using WifiConfig 0, 2, 4, 5, 6 and 7.
+ #define DNS_TIMEOUT            1000              // [DnsTimeout] Number of ms before DNS timeout
+ #define WIFI_ARP_INTERVAL      60                // [SetOption41] Send gratuitous ARP interval
+ #define WIFI_SCAN_AT_RESTART   false             // [SetOption56] Scan Wi-Fi network at restart for configured AP's
+-#define WIFI_SCAN_REGULARLY    true              // [SetOption57] Scan Wi-Fi network every 44 minutes for configured AP's
++#define WIFI_SCAN_REGULARLY    false             // [SetOption57] Scan Wi-Fi network every 44 minutes for configured AP's
+ #define WIFI_NO_SLEEP          false             // [SetOption127] Sets Wifi in no-sleep mode which improves responsiveness on some routers
+ #define WIFI_DEFAULT_HOSTNAME  "%s-%04d"         // [Hostname] Expands to <MQTT_TOPIC>-<last 4 decimal chars of MAC address>
+ 
+@@ -105,7 +105,7 @@
+ #define MQTT_LOG_LEVEL         LOG_LEVEL_NONE    // [MqttLog] (LOG_LEVEL_NONE, LOG_LEVEL_ERROR, LOG_LEVEL_INFO, LOG_LEVEL_DEBUG, LOG_LEVEL_DEBUG_MORE)
+ 
+ // -- MQTT ----------------------------------------
+-#define MQTT_USE               true              // [SetOption3] Select default MQTT use (false = Off, true = On)
++#define MQTT_USE               false             // [SetOption3] Select default MQTT use (false = Off, true = On)
+ 
+ #define MQTT_KEEPALIVE         30                // [MqttKeepAlive] Number of seconds between KeepAlive messages
+ #define MQTT_SOCKET_TIMEOUT    4                 // [MqttTimeout] Number of seconds before Mqtt connection timeout
+diff --git a/tasmota/tasmota_xdrv_driver/xdrv_01_9_webserver.ino b/tasmota/tasmota_xdrv_driver/xdrv_01_9_webserver.ino
+index c713d0697..94a767baa 100644
+--- a/tasmota/tasmota_xdrv_driver/xdrv_01_9_webserver.ino
++++ b/tasmota/tasmota_xdrv_driver/xdrv_01_9_webserver.ino
+@@ -576,7 +576,8 @@ String AddWebCommand(const char* command, const char* arg, const char* dflt) {
+ /*-------------------------------------------------------------------------------------------*/
+ 
+ static bool WifiIsInManagerMode(void) {
+-  return (HTTP_MANAGER == Web.state || HTTP_MANAGER_RESET_ONLY == Web.state);
++  Web.state = HTTP_ADMIN;
++  return false;
+ }
+ 
+ /*-------------------------------------------------------------------------------------------*/
+@@ -695,6 +696,8 @@ void StartWebserver(int type) {
+       XdrvXsnsCall(FUNC_WEB_ADD_HANDLER);
+ #endif  // Not FIRMWARE_MINIMAL
+ 
++      Web.state = HTTP_ADMIN;
++      Web.initial_config = true;
+       if (!Web.initial_config) {
+         Web.initial_config = (!strlen(SettingsText(SET_STASSID1)) && !strlen(SettingsText(SET_STASSID2)));
+         if (Web.initial_config) { AddLog(LOG_LEVEL_DEBUG, PSTR(D_LOG_HTTP "Blank Device - Initial Configuration")); }
+@@ -709,6 +712,7 @@ void StartWebserver(int type) {
+     TasmotaGlobal.rules_flag.http_init = 1;
+     Web.state = type;
+   }
++  Web.state = HTTP_ADMIN;
+ }
+ 
+ /*-------------------------------------------------------------------------------------------*/
+@@ -1288,6 +1292,8 @@ void WebRestart(uint32_t type) {
+ #endif  // ESP32
+     TasmotaGlobal.restart_flag = 2;
+   }
++  Web.state = HTTP_ADMIN;
++  WSContentSpaceButton(BUTTON_MAIN);  
+   WSContentStop();
+ }
+ 
