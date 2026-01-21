@@ -47,9 +47,9 @@ Finally, you need to put the [autoexec.be](https://github.com/belveder79/NIUScoo
 
 The biggest issue previously was to get the supply voltage to the ESP. The Relay board solves that elegantly now. And here's the catch: 
 
-***We can now use the ULP mode listening on the TX line of the ESP32 to power it up and down once the scooter is powered on/off***. 
+***We can now use the ULP mode listening on the RX line of the ESP32 to power it up and down once the scooter is powered on/off***. 
 
-In a nutshell, over the RX/TX line the controller requests data from the battery, respectively the emulator. But it stops requesting data once it is powered off and the TX/RX lines stay silent. If there is no communication, the ESP32 recognizes this and goes into ultra deep sleep mode, as there's a timer in the script which checks if there has been any communication with the controller recently. On timer expiration, it calls the sleep script. 
+In a nutshell, over the RX/TX line the controller requests data from the battery, respectively the emulator. But it stops requesting data once it is powered off and the RX/TX lines stay silent. If there is no communication, the ESP32 recognizes this and goes into ultra deep sleep mode, as there's a timer in the script which checks if there has been any communication with the controller recently. On timer expiration, it calls the sleep script. 
 
 The Berry script currently waits for ***30 seconds*** before sending the ESP to sleep. In ULP mode, it listens on GPIO 14 and if there is an edge detected, it turns on automatically.
 
