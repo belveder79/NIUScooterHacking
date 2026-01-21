@@ -36,7 +36,7 @@ After flashing, if you connect the ESP32 to power, it will spawn a WIFI hotspot 
 - Set GPIO 34 to an *Analog Range* input.
 - On the *Console* you need to map the parameters for the input to a plausible SOC value. I have not really calibrated it yet, but these values seem to work to scale the SOC to give something between 0 and 100%
   ```
-    AdcParam1 12,2900,3700,0,100
+    AdcParam1 34,2900,3700,0,100
   ```
   
 Then you can move on with uploading the scripts.
