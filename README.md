@@ -23,21 +23,33 @@ In this case the connector to the controller is linked to two GPIOs 14 and 13 as
 **TAKE CARE TO NOT FRY THE BOARD OR YOURSELF.**
 
 ### Tasmota Setup
-The ESP32 is flashed with [Tasmota](https://github.com/arendst/Tasmota). Get information how to do that from there. One important part here is that we include ULP support. ULP is the mode allowing the ESP32 to turn completely off and to come back to life based on e.g. an interrupt or counting edges on GPIOs.
+The ESP32 is flashed with [Tasmota](https://github.com/arendst/Tasmota). Get information how to do that from there. There are two important things to consider here:
 
-GPIO 34 is set to an *Analog Range* input. On the *Console* you need to map the parameters for the input to a plausible SOC value. I have not really calibrated it yet, but these values seem to work to scale the SOC to give something between 0 and 100%
-```
-AdcParam1 12,2900,3700,0,100
-```
+- Tasmota is not supposed to run in standalone mode. In other words, it will reset after 3 minutes if not connected to a network. This is bad, but luckily there is a [patch](https://github.com/arendst/Tasmota/discussions/13362) for that.
+- The ESP32 will be always on, which is bad, unnecessary and drains battery over time. Luckily there is a feature called ULP (Ultra-Low-Power) which we can use.
+
+So we patch the sources and include ULP support. ULP is the mode allowing the ESP32 to turn completely off and to come back to life based on e.g. an interrupt or counting edges on GPIOs. The precompiled binaries in the [prebuilts](https://github.com/belveder79/NIUScooterHacking/tree/main/prebuilts) folder include ULP support and the patch.
+
+After flashing, if you connect the ESP32 to power, it will spawn a WIFI hotspot and will be available under a weird name like `tasmota_XXXXXX`. The IP is `192.168.4.1`. 
+
+- You can change the hostname. The WIFI hotspot will from then on have the same name.
+- Set GPIO 34 to an *Analog Range* input.
+- On the *Console* you need to map the parameters for the input to a plausible SOC value. I have not really calibrated it yet, but these values seem to work to scale the SOC to give something between 0 and 100%
+  ```
+    AdcParam1 12,2900,3700,0,100
+  ```
+  
+Then you can move on with uploading the scripts.
+
 ### Berry Scripts
 
 Finally, you need to put the [autoexec.be](https://github.com/belveder79/NIUScooterHacking/blob/main/v2/autoexec.be) and the [runulp.be](https://github.com/belveder79/NIUScooterHacking/blob/main/v2/runulp.be) Berry scripts into the file system of the ESP32 and restart. Done!
 
 The biggest issue previously was to get the supply voltage to the ESP. The Relay board solves that elegantly now. And here's the catch: 
 
-***We can use the ULP mode listening on the TX line of the ESP32 to power it up and down once the scooter is powered on/off***. 
+***We can now use the ULP mode listening on the TX line of the ESP32 to power it up and down once the scooter is powered on/off***. 
 
-In the script, there's a timer which checks of there has been any communication with the controller. If there is none, the ESP32 goes into ultra deep sleep mode. The Berry script currently waits for ***30 seconds*** before doing so. The ULP module listens on GPIO 14 and if there is an edge detected, turns on automatically.
+In a nutshell, over the RX/TX line the controller requests data from the battery, respectively the emulator. But it stops requesting data once it is powered of and the TX/RX lines stay silent. If there is no communication, the ESP32 recognizes this and goes into ultra deep sleep mode, as there's a timer in the script which checks if there has been any communication with the controller. On timer expiration, it calls the sleep script. The Berry script currently waits for ***30 seconds*** before sending the ESP to sleep. In ULP mode, it listens on GPIO 14 and if there is an edge detected, it turns on automatically.
 
 ### Updating Scooter Firmware
 
