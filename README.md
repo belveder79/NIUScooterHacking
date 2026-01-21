@@ -57,7 +57,7 @@ The Berry script currently waits for ***30 seconds*** before sending the ESP to 
 
 Below there are a few links to upgrade the firmware of the scooter with a modified Android app. During any update, the controller does not send the usual packages. Therefore, the ESP will go to sleep, which leads to upgrade failure. 
 
-If you are trying to update the firmware of the scooter, make sure that you ***disable the `runULP.be` *** before doing so. It is fine to add a `return` statement as the first line in the script, which can be easily removed after the upgrade has succeeded.
+If you are trying to update the firmware of the scooter, make sure that you ***disable the*** `runULP.be` script before doing so. It is fine to add a `return` statement as the first line in the script, which can be easily removed after the upgrade has succeeded.
 
 ### Parts list
 
