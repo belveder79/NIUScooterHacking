@@ -66,6 +66,14 @@ If you are trying to update the firmware of the scooter, make sure that you ***d
 - JST connectors + cables
 - Case [Amazon](https://www.amazon.de/dp/B0BZBW4Z9K)
 
+### Known Issues (v2)
+
+The rest of the issues is minor actually.
+
+- Despite using ULP, the ESP32 will wake up periodically and will not be in deep-sleep all the time. I think it is somewhat around 15 minutes. I weren't able yet to increase this timeout; however, it will go back to sleep again as there is no communication happening;
+- The WIFI is the most power-hungry part still; one can add a "Wifi Off" as a rule to tasmota on boot-up, but that makes the ESP32 unavailable once mounted. It's a tradeoff, I rather live with it.
+- I did not find an ESP module accepting the 48V without relays. They are superficial and make the board bulky. Will continue searching...
+
 ## More links to modify the NIU scooters
 
 Here are a few links for modifying the NIU scooters:
