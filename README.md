@@ -4,7 +4,7 @@ This repository is supposed to serve as a summary of findings when trying to cus
 
 ## Background Story
 
-I bought a [NIU KQI3 Pro](https://shopeu.niu.com/en-at/products/niu-kqi3-pro-electric-kick-scooter-at-version) scooter at the end of 2024 and it has taken me already almost 3000km since then. Those are very nice scooters and they are really well made. Read [more](./bg.md)...
+I bought a [NIU KQI3 Pro](https://shopeu.niu.com/en-at/products/niu-kqi3-pro-electric-kick-scooter-at-version) scooter at the end of 2024 and it has taken me already almost 4500km since then. Those are very nice scooters and they are really well made. Read [more](./bg.md)...
 
 ## Battery Emulator (v1)
 
@@ -16,12 +16,16 @@ Like in v1, I created an ESP32-based workaround for the missing serial interface
 
 ![IMG_0795](https://github.com/user-attachments/assets/ea49b247-e395-4155-8b57-aa7ddc050935)
 
-In this case the connector to the controller is linked to two GPIOs 14 and 13 as RX/TX. The (very simple) voltage divider brings the 39.0V-54.6V range from the battery down to some 2-3 volts, which can be read by the ESP32 on analog input GPIO XX. The capacitor is used for smoothing and can be omitted if not available. Now, in order to get the battery voltage, you can use a Y-cable. **TAKE CARE TO NOT FRY THE BOARD OR YOURSELF.**
+In this case the connector to the controller is linked to two GPIOs 14 and 13 as RX/TX. The (very simple) voltage divider brings the 39.0V-54.6V range from the battery down to some 2-3 volts, which can be read by the ESP32 on analog input GPIO 34. The capacitor is used for smoothing and can be omitted if not available. Now, in order to get the battery voltage, you can use a Y-cable. 
+
+*Note: You can change the GPIOs to what you like, but note that e.g. GPIO 12 is internally linked to the flash voltage. Because the ESP32 needs to have this one floating on boot and the controller will pull it down, the ESP32 does not boot if it is connected to GPIO 12. The same likely applies to GPIO 0 or 2.*
+
+**TAKE CARE TO NOT FRY THE BOARD OR YOURSELF.**
 
 ### Tasmota Setup
 The ESP32 is flashed with [Tasmota](https://github.com/arendst/Tasmota). Get information how to do that from there. One important part here is that we include ULP support. ULP is the mode allowing the ESP32 to turn completely off and to come back to life based on e.g. an interrupt or counting edges on GPIOs.
 
-GPIOXX is set to an *Analog Range* input. On the *Console* you need to map the parameters for the input to a plausible SOC value. I have not really calibrated it yet, but these values seem to work to scale the SOC to give something between 0 and 100%
+GPIO 34 is set to an *Analog Range* input. On the *Console* you need to map the parameters for the input to a plausible SOC value. I have not really calibrated it yet, but these values seem to work to scale the SOC to give something between 0 and 100%
 ```
 AdcParam1 12,2900,3700,0,100
 ```
@@ -33,13 +37,20 @@ The biggest issue previously was to get the supply voltage to the ESP. The Relay
 
 ***We can use the ULP mode listening on the TX line of the ESP32 to power it up and down once the scooter is powered on/off***. 
 
-In the script, there's a timer which checks of there has been any communication with the controller. If there is none, the ESP32 goes into ultra deep sleep mode. The ULP module listens on GPIO 14 and if there is an edge detected, turns on automatically.
+In the script, there's a timer which checks of there has been any communication with the controller. If there is none, the ESP32 goes into ultra deep sleep mode. The Berry script currently waits for ***30 seconds*** before doing so. The ULP module listens on GPIO 14 and if there is an edge detected, turns on automatically.
+
+### Updating Scooter Firmware
+
+Below there are a few links to upgrade the firmware of the scooter with a modified Android app. During any update, the controller does not send the usual packages. Therefore, the ESP will go to sleep, which leads to upgrade failure. 
+
+If you are trying to update the firmware of the scooter, make sure that you ***disable the `runULP.be` *** before doing so. It is fine to add a `return` statement as the first line in the script, which can be easily removed after the upgrade has succeeded.
 
 ### Parts list
 
 - XT60 Y-cable [Amazon](https://www.amazon.de/VUNIVERSUM-Goldstecker-Adapterkabel-Mr-Stecker-Modellbau%C2%AE/dp/B078NZ7VQQ)
 - ESP32 Relay board [Amazon](https://www.amazon.de/dp/B0CYSMFB49)
 - JST connectors + cables
+- Case [Amazon](https://www.amazon.de/dp/B0BZBW4Z9K)
 
 ## More links to modify the NIU scooters
 
